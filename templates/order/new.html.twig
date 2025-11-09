@@ -1,0 +1,43 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Новый заказ - Система управления{% endblock %}
+
+{% block body %}
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header bg-dark text-white">
+                    <h2 class="h5 mb-0">Создание нового заказа</h2>
+                </div>
+                <div class="card-body">
+                    {{ form_start(form) }}
+                        <div class="mb-3">
+                            {{ form_label(form.client, 'Выберите клиента', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            {{ form_widget(form.client, {'attr': {'class': 'form-select'}}) }}
+                            <div class="form-text">Клиент отображается в формате "ФИО - Телефон"</div>
+                            {{ form_errors(form.client) }}
+                        </div>
+
+                        <div class="mb-4">
+                            {{ form_label(form.dishes, 'Выберите блюда', {'label_attr': {'class': 'form-label fw-bold'}}) }}
+                            <div class="border rounded p-3">
+                                {{ form_widget(form.dishes) }}
+                            </div>
+                            <div class="form-text">Выберите одно или несколько блюд для заказа</div>
+                            {{ form_errors(form.dishes) }}
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button class="btn btn-primary me-md-2">
+                                Сохранить заказ
+                            </button>
+                            <a href="{{ path('app_order_index') }}" class="btn btn-secondary">
+                                Назад к списку
+                            </a>
+                        </div>
+                    {{ form_end(form) }}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

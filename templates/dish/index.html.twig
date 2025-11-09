@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Меню - Система управления{% endblock %}
+
+{% block body %}
+   
+        <h1>Управление меню</h1>
+        <a href="{{ path('app_dish_new') }}" >
+            Добавить блюдо
+        </a>
+   
+
+   
+  
+        <a href="{{ path('app_client_index') }}">
+            Назад к клиентам
+        </a>
+        <a href="{{ path('app_order_index') }}" >
+            Перейти к заказам
+        </a>
+
+
+    {% if dishes|length > 0 %}
+       
+            <table >
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Название блюда</th>
+                        <th>Цена</th>
+                        <th>В заказах</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for dish in dishes %}
+                    <tr>
+                        <td>{{ dish.id }}</td>
+                        <td>
+                            <strong>{{ dish.name }}</strong>
+                        </td>
+                        <td>
+                            <span >{{ dish.price }} руб.</span>
+                        </td>
+                        <td>
+                            <span>{{ dish.orders|length }} заказов</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ path('app_dish_show', {'id': dish.id}) }}" >Просмотр</a>
+                                <a href="{{ path('app_dish_edit', {'id': dish.id}) }}">Редактировать</a>
+                                {{ include('dish/_delete_form.html.twig') }}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        
+    {% else %}
+      
+            <h4>Меню пустое</h4>
+            <p class="mb-3">Добавьте блюда в меню чтобы принимать заказы!</p>
+            <a href="{{ path('app_dish_new') }}" >Добавить блюдо</a>
+            <a href="{{ path('app_client_index') }}">Вернуться к клиентам</a>
+      
+    {% endif %}
+{% endblock %}

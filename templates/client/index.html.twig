@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Клиенты - Система управления{% endblock %}
+
+{% block body %}
+    
+        <h1>Управление клиентами</h1>
+        <a href="{{ path('app_client_new') }}" >
+            Добавить клиента
+        </a>
+   
+
+   
+    <div >
+        <div>
+            <a href="{{ path('app_dish_index') }}" >
+                Перейти к меню
+            </a>
+        </div>
+        <div >
+            <a href="{{ path('app_order_index') }}">
+                Перейти к заказам
+            </a>
+        </div>
+        <div >
+            <a href="{{ path('app_order_new') }}" >
+                Создать заказ
+            </a>
+        </div>
+    </div>
+
+    {% if clients|length > 0 %}
+        
+            <table>
+                <thead >
+                    <tr>
+                        <th>ID</th>
+                        <th>ФИО</th>
+                        <th>Телефон</th>
+                     
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for client in clients %}
+                    <tr>
+                        <td>{{ client.id }}</td>
+                        <td>
+                            <strong>{{ client.FIO }}</strong>
+                        </td>
+                        <td>{{ client.phone }}</td>
+
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ path('app_client_show', {'id': client.id}) }}" >Просмотр</a>
+                                <a href="{{ path('app_client_edit', {'id': client.id}) }}" >Редактировать</a>
+                                {{ include('client/_delete_form.html.twig') }}
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        
+    {% else %}
+        <div >
+            <h4>Клиентов пока нет</h4>
+            <p class="mb-3">Добавьте первого клиента чтобы начать работу!</p>
+            <a href="{{ path('app_client_new') }}" >Добавить клиента</a>
+            <a href="{{ path('app_dish_index') }}">Сначала создать меню</a>
+        </div>
+    {% endif %}
+{% endblock %}

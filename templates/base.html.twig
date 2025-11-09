@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Система управления заказами{% endblock %}</title>
+        
+    </head>
+    <body>
+                <div  id="navbarNav">
+                    <ul >
+                        <li >
+                            <a href="{{ path('app_client_index') }}">Клиенты</a>
+                        </li>
+                        <li >
+                            <a href="{{ path('app_dish_index') }}">Меню</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ path('app_order_index') }}">Заказы</a>
+                        </li>
+                    </ul>
+                </div>
+         
+       
+            <div >
+                <div>
+                    <div >
+                        <a href="{{ path('app_client_index') }}" >
+                            Управление клиентами
+                        </a>
+                        <a href="{{ path('app_dish_index') }}" >
+                            Управление меню
+                        </a>
+                        <a href="{{ path('app_order_index') }}" >
+                            Управление заказами
+                        </a>
+                    </div>
+                </div>
+           
+
+            {% for message in app.flashes('success') %}
+                <div role="alert">
+                    {{ message }}
+                    <button type="button"  data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div  role="alert">
+                    {{ message }}
+                    <button type="button"  data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+
+            {% block body %}{% endblock %}
+        </div>
+
+    
+    </body>
+</html>
