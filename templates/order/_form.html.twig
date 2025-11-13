@@ -1,4 +1,32 @@
 {{ form_start(form) }}
-    {{ form_widget(form) }}
-    <button class="btn">{{ button_label|default('Сохранить') }}</button>
+     {{ form_row(form.client) }}
+    {{ form_row(form.dishes) }}
+    {{ form_row(form.fileUploads) }}
+
+    {% if order.files|length > 0 %}
+        <div class="mb-3">
+            <h5>Прикрепленные файлы:</h5>
+            <ul class="list-group">
+                {% for file in order.files %}
+                    {% set filename = file|split('/')|last %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ filename }}</span>
+                        <div>
+                            <a href="{{ path('app_order_download_file', {'id': order.id, 'filename': filename}) }}" 
+                               class="btn btn-primary btn-sm">Скачать</a>
+                            <form method="post" 
+                                  action="{{ path('app_order_delete_file', {'id': order.id, 'filename': filename}) }}" 
+                                  style="display: inline;"
+                                  onsubmit="return confirm('Удалить файл?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete-file' ~ filename) }}">
+                                <button class="btn btn-danger btn-sm">Удалить</button>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% endif %}
+
+    <button class="btn btn-success">{{ button_label|default('Сохранить') }}</button>
 {{ form_end(form) }}

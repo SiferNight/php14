@@ -3,23 +3,29 @@
 namespace App\Form;
 
 use App\Entity\Dish;
-use App\Entity\Order;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\MoneyType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 class DishType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
         $builder
-            ->add('name')
-            ->add('price')
-            ->add('orders', EntityType::class, [
-                'class' => Order::class,
-                'choice_label' => 'id',
-                'multiple' => true,
+            ->add('name', TextType::class, [
+                'label' => 'Название блюда',
+            ])
+            ->add('price', MoneyType::class, [
+                'label' => 'Цена',
+                'currency' => 'RUB',
+            ])
+            ->add('imageFile', FileType::class, [
+                'label' => 'Изображение блюда (JPG, PNG)',
+                'mapped' => false,
+                'required' => false,
             ])
         ;
     }

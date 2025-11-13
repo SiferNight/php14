@@ -10,6 +10,7 @@ use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Count;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 class OrderType extends AbstractType
 {
@@ -40,6 +41,13 @@ class OrderType extends AbstractType
                         'minMessage' => 'Заказ должен содержать как минимум одно блюдо.',
                     ]),
                 ],
+            ])
+            ->add('fileUploads', FileType::class, [
+                'label' => 'Прикрепить файлы (PDF, DOCX, TXT, JPG, PNG)',
+                'mapped' => false,
+                'required' => false,
+                'multiple' => true,
+                'attr' => ['class' => 'form-control'],
             ])
         ;
     }
