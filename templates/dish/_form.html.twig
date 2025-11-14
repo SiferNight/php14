@@ -1,16 +1,25 @@
 {{ form_start(form) }}
-     {{ form_row(form.name) }}
-    {{ form_row(form.price) }}
-    
     <div class="mb-3">
-        {{ form_label(form.imageFile) }}
-        {{ form_widget(form.imageFile) }}
-        {{ form_errors(form.imageFile) }}
+        {{ form_label(form.name, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.name, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.name) }}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.price, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.price, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.price) }}
+    </div>
+
+    <div class="mb-3">
+        {{ form_label(form.image, null, {'label_attr': {'class': 'form-label'}}) }}
+        {{ form_widget(form.image, {'attr': {'class': 'form-control'}}) }}
+        {{ form_errors(form.image) }}
         
         {% if dish.image %}
             <div class="mt-2">
                 <p>Текущее изображение:</p>
-                <img src="{{ asset(dish.image) }}" alt="{{ dish.name }}" class="img-thumbnail" style="max-height: 200px;">
+                <img src="{{ asset('uploads/dishes/' ~ dish.image.filename) }}" alt="{{ dish.name }}" class="img-thumbnail" style="max-height: 200px;">
                 <div class="mt-2">
                     <form method="post" action="{{ path('app_dish_delete_image', {'id': dish.id}) }}" onsubmit="return confirm('Удалить изображение?');">
                         <input type="hidden" name="_token" value="{{ csrf_token('delete-image' ~ dish.id) }}">
@@ -27,4 +36,5 @@
     </div>
 
     <button class="btn btn-success">{{ button_label|default('Сохранить') }}</button>
+    <a href="{{ path('app_dish_index') }}" class="btn btn-secondary">Назад к списку</a>
 {{ form_end(form) }}

@@ -17,23 +17,33 @@ class Order
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\ManyToOne]
+    #[ORM\ManyToOne(inversedBy: 'orders')]
+    #[ORM\JoinColumn(nullable: false)]
     private ?Client $client = null;
 
     /**
      * @var Collection<int, Dish>
      */
     #[ORM\ManyToMany(targetEntity: Dish::class, inversedBy: 'orders')]
+    #[ORM\JoinTable(name: 'order_dish')]
     #[Assert\Count(min: 1, minMessage: "Заказ должен содержать хотя бы одно блюдо")]
     private Collection $dishes;
 
-    #[ORM\Column(type: 'json')]
-    private array $files = [];
+    /**
+     * @var Collection<int, File>
+     */
+    #[ORM\ManyToMany(targetEntity: File::class, inversedBy: 'orders')]
+    #[ORM\JoinTable(name: 'order_files')]
+    private Collection $files;
+
+    #[ORM\Column]
+    private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()
     {
         $this->dishes = new ArrayCollection();
-        $this->files = [];
+        $this->files = new ArrayCollection();
+        $this->createdAt = new \DateTimeImmutable();
     }
 
     public function getId(): ?int
@@ -49,7 +59,6 @@ class Order
     public function setClient(?Client $client): static
     {
         $this->client = $client;
-
         return $this;
     }
 
@@ -66,46 +75,61 @@ class Order
         if (!$this->dishes->contains($dish)) {
             $this->dishes->add($dish);
         }
-
         return $this;
     }
 
     public function removeDish(Dish $dish): static
     {
         $this->dishes->removeElement($dish);
-
         return $this;
     }
 
-    public function getFiles(): array
+    /**
+     * @return Collection<int, File>
+     */
+    public function getFiles(): Collection
     {
         return $this->files;
     }
 
-    public function setFiles(array $files): static
+    public function addFile(File $file): static
     {
-        $this->files = $files;
-
+        if (!$this->files->contains($file)) {
+            $this->files->add($file);
+        }
         return $this;
     }
 
-    public function addFile(string $filePath): static
+    public function removeFile(File $file): static
     {
-        if (!in_array($filePath, $this->files, true)) {
-            $this->files[] = $filePath;
-        }
-
+        $this->files->removeElement($file);
         return $this;
     }
 
-    public function removeFile(string $filePath): static
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
-        $key = array_search($filePath, $this->files, true);
-        if ($key !== false) {
-            unset($this->files[$key]);
-            $this->files = array_values($this->files);
-        }
+        return $this->createdAt;
+    }
 
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
         return $this;
+    }
+
+    public function getTotalPrice(): float
+    {
+        $total = 0.0;
+        foreach ($this->dishes as $dish) {
+            if ($dish && $dish->getPrice()) {
+                $total += (float) $dish->getPrice();
+            }
+        }
+        return $total;
+    }
+
+    public function getTotalPriceFormatted(): string
+    {
+        return number_format($this->getTotalPrice(), 2, '.', ' ');
     }
 }

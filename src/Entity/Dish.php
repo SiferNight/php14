@@ -25,14 +25,12 @@ class Dish
     #[Assert\Positive(message: "Цена должна быть больше 0")]
     private ?string $price = null;
 
-    /**
-     * @var Collection<int, Order>
-     */
     #[ORM\ManyToMany(targetEntity: Order::class, mappedBy: 'dishes')]
     private Collection $orders;
 
-    #[ORM\Column(length: 255, nullable: true)]
-    private ?string $image = null;
+    #[ORM\OneToOne(targetEntity: File::class, cascade: ['persist', 'remove'])]
+    #[ORM\JoinColumn(name: 'image_id', referencedColumnName: 'id', nullable: true)]
+    private ?File $image = null;
 
     public function __construct()
     {
@@ -52,7 +50,6 @@ class Dish
     public function setName(string $name): static
     {
         $this->name = $name;
-
         return $this;
     }
 
@@ -64,13 +61,9 @@ class Dish
     public function setPrice(string $price): static
     {
         $this->price = $price;
-
         return $this;
     }
 
-    /**
-     * @return Collection<int, Order>
-     */
     public function getOrders(): Collection
     {
         return $this->orders;
@@ -82,7 +75,6 @@ class Dish
             $this->orders->add($order);
             $order->addDish($this);
         }
-
         return $this;
     }
 
@@ -91,19 +83,22 @@ class Dish
         if ($this->orders->removeElement($order)) {
             $order->removeDish($this);
         }
-
         return $this;
     }
 
-    public function getImage(): ?string
+    public function getImage(): ?File
     {
         return $this->image;
     }
 
-    public function setImage(?string $image): static
+    public function setImage(?File $image): static
     {
         $this->image = $image;
-
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->name . ' - ' . $this->price . ' руб.';
     }
 }

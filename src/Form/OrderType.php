@@ -9,8 +9,8 @@ use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
-use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints as Assert;
 
 class OrderType extends AbstractType
 {
@@ -24,7 +24,7 @@ class OrderType extends AbstractType
                 },
                 'placeholder' => 'Выберите клиента',
                 'label' => 'Клиент',
-                'constraints' => [new \Symfony\Component\Validator\Constraints\NotBlank()],
+                'constraints' => [new Assert\NotBlank()],
                 'attr' => ['class' => 'form-select']
             ])
             ->add('dishes', EntityType::class, [
@@ -36,13 +36,13 @@ class OrderType extends AbstractType
                 'expanded' => true,
                 'label' => 'Блюда',
                 'constraints' => [
-                    new Count([
+                    new Assert\Count([
                         'min' => 1,
                         'minMessage' => 'Заказ должен содержать как минимум одно блюдо.',
                     ]),
                 ],
             ])
-            ->add('fileUploads', FileType::class, [
+            ->add('files', FileType::class, [
                 'label' => 'Прикрепить файлы (PDF, DOCX, TXT, JPG, PNG)',
                 'mapped' => false,
                 'required' => false,

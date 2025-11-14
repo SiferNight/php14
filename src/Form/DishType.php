@@ -9,6 +9,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\Validator\Constraints\File;
 
 class DishType extends AbstractType
 {
@@ -17,15 +18,29 @@ class DishType extends AbstractType
         $builder
             ->add('name', TextType::class, [
                 'label' => 'Название блюда',
+                'attr' => ['class' => 'form-control']
             ])
             ->add('price', MoneyType::class, [
                 'label' => 'Цена',
                 'currency' => 'RUB',
+                'attr' => ['class' => 'form-control']
             ])
-            ->add('imageFile', FileType::class, [
+            ->add('image', FileType::class, [
                 'label' => 'Изображение блюда (JPG, PNG)',
                 'mapped' => false,
                 'required' => false,
+                'attr' => ['class' => 'form-control'],
+                'constraints' => [
+                    new File([
+                        'maxSize' => '1024k',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                            'image/jpg',
+                        ],
+                        'mimeTypesMessage' => 'Пожалуйста, загрузите изображение в формате JPG или PNG',
+                    ])
+                ],
             ])
         ;
     }

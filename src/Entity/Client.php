@@ -21,11 +21,9 @@ class Client
     private ?string $FIO = null;
 
     #[ORM\Column(length: 20)]
+    #[Assert\NotBlank(message: "Телефон клиента обязателен")]
     private ?string $phone = null;
 
-    /**
-     * @var Collection<int, Order>
-     */
     #[ORM\OneToMany(targetEntity: Order::class, mappedBy: 'client')]
     private Collection $orders;
 
@@ -47,7 +45,6 @@ class Client
     public function setFIO(string $FIO): static
     {
         $this->FIO = $FIO;
-
         return $this;
     }
 
@@ -59,7 +56,6 @@ class Client
     public function setPhone(string $phone): static
     {
         $this->phone = $phone;
-
         return $this;
     }
 
@@ -84,12 +80,16 @@ class Client
     public function removeOrder(Order $order): static
     {
         if ($this->orders->removeElement($order)) {
-            // set the owning side to null (unless already changed)
             if ($order->getClient() === $this) {
                 $order->setClient(null);
             }
         }
 
         return $this;
+    }
+
+    public function __toString(): string
+    {
+        return $this->FIO . ' (' . $this->phone . ')';
     }
 }
