@@ -48,7 +48,7 @@ class OrderController extends AbstractController
             if ($uploadedFiles) {
                 foreach ($uploadedFiles as $uploadedFile) {
                     if ($uploadedFile) {
-                        $fileEntity = $this->handleFileUpload($uploadedFile, $slugger, 'order_document');
+                        $fileEntity = $this->handleFileUpload($uploadedFile, $slugger, 'order_document', $order);
                         if ($fileEntity) {
                             $order->addFile($fileEntity);
                         }
@@ -82,7 +82,7 @@ class OrderController extends AbstractController
             if ($uploadedFiles) {
                 foreach ($uploadedFiles as $uploadedFile) {
                     if ($uploadedFile) {
-                        $fileEntity = $this->handleFileUpload($uploadedFile, $slugger, 'order_document');
+                        $fileEntity = $this->handleFileUpload($uploadedFile, $slugger, 'order_document', $order);
                         if ($fileEntity) {
                             $order->addFile($fileEntity);
                         }
@@ -138,8 +138,9 @@ class OrderController extends AbstractController
             // Удаляем файл с диска
             $this->deleteFileFromDisk($file);
             
-            // Удаляем связь и файл из БД (cascade удалит файл автоматически при flush)
+            // Удаляем связь и файл из БД
             $order->removeFile($file);
+            $entityManager->remove($file);
             $entityManager->flush();
 
             $this->addFlash('success', 'Файл удален');
@@ -162,7 +163,7 @@ class OrderController extends AbstractController
         return $this->redirectToRoute('app_order_index', [], Response::HTTP_SEE_OTHER);
     }
 
-    private function handleFileUpload($uploadedFile, SluggerInterface $slugger, string $type): ?File
+    private function handleFileUpload($uploadedFile, SluggerInterface $slugger, string $type, Order $order): ?File
     {
         $allowedMimeTypes = [
             'image/jpeg', 'image/png', 'image/jpg',
@@ -194,6 +195,7 @@ class OrderController extends AbstractController
             $fileEntity->setOriginalName($uploadedFile->getClientOriginalName());
             $fileEntity->setMimeType($uploadedFile->getMimeType());
             $fileEntity->setType($type);
+            $fileEntity->setOrder($order); // ВАЖНО: устанавливаем связь с заказом!
 
             return $fileEntity;
 
