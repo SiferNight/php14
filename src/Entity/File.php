@@ -3,8 +3,6 @@
 namespace App\Entity;
 
 use App\Repository\FileRepository;
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 #[ORM\Entity(repositoryClass: FileRepository::class)]
@@ -27,15 +25,15 @@ class File
     #[ORM\Column(length: 20)]
     private ?string $type = null;
 
-    #[ORM\ManyToMany(targetEntity: Order::class, mappedBy: 'files')]
-    private Collection $orders;
+    #[ORM\ManyToOne(targetEntity: Order::class, inversedBy: 'files')]
+    #[ORM\JoinColumn(name: 'order_id', referencedColumnName: 'id', nullable: true, onDelete: 'CASCADE')]
+    private ?Order $order = null;
 
     #[ORM\Column]
     private ?\DateTimeImmutable $createdAt = null;
 
     public function __construct()
     {
-        $this->orders = new ArrayCollection();
         $this->createdAt = new \DateTimeImmutable();
     }
 
@@ -88,25 +86,14 @@ class File
         return $this;
     }
 
-    /**
-     * @return Collection<int, Order>
-     */
-    public function getOrders(): Collection
+    public function getOrder(): ?Order
     {
-        return $this->orders;
+        return $this->order;
     }
 
-    public function addOrder(Order $order): static
+    public function setOrder(?Order $order): static
     {
-        if (!$this->orders->contains($order)) {
-            $this->orders->add($order);
-        }
-        return $this;
-    }
-
-    public function removeOrder(Order $order): static
-    {
-        $this->orders->removeElement($order);
+        $this->order = $order;
         return $this;
     }
 

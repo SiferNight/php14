@@ -32,8 +32,7 @@ class Order
     /**
      * @var Collection<int, File>
      */
-    #[ORM\ManyToMany(targetEntity: File::class, inversedBy: 'orders')]
-    #[ORM\JoinTable(name: 'order_files')]
+    #[ORM\OneToMany(targetEntity: File::class, mappedBy: 'order', cascade: ['persist', 'remove'])]
     private Collection $files;
 
     #[ORM\Column]
@@ -96,13 +95,19 @@ class Order
     {
         if (!$this->files->contains($file)) {
             $this->files->add($file);
+            $file->setOrder($this);
         }
         return $this;
     }
 
     public function removeFile(File $file): static
     {
-        $this->files->removeElement($file);
+        if ($this->files->removeElement($file)) {
+            // set the owning side to null (unless already changed)
+            if ($file->getOrder() === $this) {
+                $file->setOrder(null);
+            }
+        }
         return $this;
     }
 

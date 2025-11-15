@@ -51,7 +51,6 @@ class OrderController extends AbstractController
                         $fileEntity = $this->handleFileUpload($uploadedFile, $slugger, 'order_document');
                         if ($fileEntity) {
                             $order->addFile($fileEntity);
-                            $entityManager->persist($fileEntity);
                         }
                     }
                 }
@@ -86,7 +85,6 @@ class OrderController extends AbstractController
                         $fileEntity = $this->handleFileUpload($uploadedFile, $slugger, 'order_document');
                         if ($fileEntity) {
                             $order->addFile($fileEntity);
-                            $entityManager->persist($fileEntity);
                         }
                     }
                 }
@@ -109,7 +107,7 @@ class OrderController extends AbstractController
     {
         $file = $entityManager->getRepository(File::class)->find($fileId);
         
-        if (!$file || !$order->getFiles()->contains($file)) {
+        if (!$file || $file->getOrder() !== $order) {
             throw $this->createNotFoundException('Файл не найден');
         }
 
@@ -132,7 +130,7 @@ class OrderController extends AbstractController
     {
         $file = $entityManager->getRepository(File::class)->find($fileId);
         
-        if (!$file || !$order->getFiles()->contains($file)) {
+        if (!$file || $file->getOrder() !== $order) {
             throw $this->createNotFoundException('Файл не найден');
         }
 
@@ -140,9 +138,8 @@ class OrderController extends AbstractController
             // Удаляем файл с диска
             $this->deleteFileFromDisk($file);
             
-            // Удаляем связь и файл из БД
+            // Удаляем связь и файл из БД (cascade удалит файл автоматически при flush)
             $order->removeFile($file);
-            $entityManager->remove($file);
             $entityManager->flush();
 
             $this->addFlash('success', 'Файл удален');
@@ -155,12 +152,7 @@ class OrderController extends AbstractController
     public function delete(Request $request, Order $order, EntityManagerInterface $entityManager): Response
     {
         if ($this->isCsrfTokenValid('delete'.$order->getId(), $request->request->get('_token'))) {
-            // Удаляем файлы заказа
-            foreach ($order->getFiles() as $file) {
-                $this->deleteFileFromDisk($file);
-                $entityManager->remove($file);
-            }
-
+            // Файлы удалятся автоматически благодаря cascade: ['remove']
             $entityManager->remove($order);
             $entityManager->flush();
             
