@@ -13,6 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\String\Slugger\SluggerInterface;
 
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 #[Route('/dish')]
 class DishController extends AbstractController
 {
@@ -177,6 +180,53 @@ class DishController extends AbstractController
             $this->addFlash('error', 'Ошибка при загрузке файла: ' . $uploadedFile->getClientOriginalName());
             return null;
         }
+    }
+
+#[Route('/export-excel', name: 'app_order_export_excel', methods: ['GET'])]
+    public function exportExcel(OrderRepository $orderRepository): StreamedResponse
+    {
+        $orders = $orderRepository->findAll();
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setCellValue('A1', 'ID заказа');
+        $sheet->setCellValue('B1', 'Клиент');
+        $sheet->setCellValue('C1', 'Блюда');
+        $sheet->setCellValue('D1', 'Кол-во блюд');
+        $sheet->setCellValue('E1', 'Файлы');
+
+        $row = 2;
+        foreach ($orders as $order) {
+            $dishes = [];
+            foreach ($order->getDish() as $dish) {
+                $dishes[] = $dish->getName();
+            }
+
+            $files = [];
+            foreach ($order->getFiles() as $file) {
+                $files[] = basename($file->getFilePath());
+            }
+
+            $sheet->setCellValue('A' . $row, $order->getId());
+            $sheet->setCellValue('B' . $row, $order->getClient()->getName());
+            $sheet->setCellValue('C' . $row, implode(', ', $dishes));
+            $sheet->setCellValue('D' . $row, count($dishes));
+            $sheet->setCellValue('E' . $row, implode(', ', $files));
+
+            $row++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+
+        $response = new StreamedResponse(function () use ($writer) {
+            $writer->save('php://output');
+        });
+
+        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $response->headers->set('Content-Disposition', 'attachment;filename="orders.xlsx"');
+
+        return $response;
     }
 
     private function deleteFileFromDisk(File $file): void
